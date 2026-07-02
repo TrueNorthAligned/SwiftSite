@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "start": "vite build --base=/editor/ && node server/production-server.cjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },
