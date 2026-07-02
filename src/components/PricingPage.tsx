@@ -47,28 +47,27 @@ export default function PricingPage({ onClose }: { onClose?: () => void }) {
     setError(null);
 
     try {
-      const res = await fetch('/api/stripe/create-checkout', {
-        method: 'POST',
-        headers: authHeaders(token),
-        body: JSON.stringify({ tierId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
+      // Fetch pricing to get the payment link
+      const pricingRes = await fetch('/api/pricing');
+      const tiers: Tier[] = await pricingRes.json();
+      const tier = tiers.find(t => t.id === tierId);
+      if (!tier?.paymentLink) throw new Error('No payment link');
 
-      // Redirect to Stripe Checkout
-      window.location.href = data.url;
-    } catch (e: any) {
-      // Fallback: simulate successful payment for demo
-      console.log('Stripe not configured — simulating payment');
-      const res = await fetch('/api/subscription', {
-        method: 'POST',
-        headers: authHeaders(token),
-        body: JSON.stringify({ tier: tierId, status: 'active' }),
-      }).catch(() => null);
+      // Store intent in sessionStorage before redirecting
+      if (user && token) {
+        sessionStorage.setItem('swiftsite-upgrade-tier', tierId);
+        sessionStorage.setItem('swiftsite-upgrade-user', user.userId);
 
-      setSubscription({ tier: tierId, status: 'active' });
-      setError(null);
-    } finally {
+        // Prefill user email and return URL
+        const url = new URL(tier.paymentLink);
+        url.searchParams.set('prefilled_email', user.email);
+        window.location.href = url.toString();
+      } else {
+        window.location.href = tier.paymentLink;
+      }
+    } catch (e) {
+      console.error('Upgrade error:', e);
+      setError('Failed to start upgrade. Please try again.');
       setCheckoutLoading(null);
     }
   };

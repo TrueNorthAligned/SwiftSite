@@ -40,11 +40,11 @@ const DIST_DIR = path.join(__dirname, '..', 'dist');
   }
 });
 
-// Pricing tiers
+// Pricing tiers with Stripe payment links
 const TIERS = {
-  starter: { id: 'starter', name: 'Starter', price: 1900, priceLabel: '$19/mo', maxPages: 5, features: ['custom domain', 'analytics'] },
-  business: { id: 'business', name: 'Business', price: 4900, priceLabel: '$49/mo', maxPages: 20, features: ['custom domain', 'analytics', 'SEO tools'] },
-  pro: { id: 'pro', name: 'Pro', price: 9900, priceLabel: '$99/mo', maxPages: 100, features: ['custom domain', 'analytics', 'SEO tools', 'e-commerce', 'booking'] },
+  starter: { id: 'starter', name: 'Starter', price: 1900, priceLabel: '$19/mo', maxPages: 5, features: ['custom domain', 'analytics'], paymentLink: 'https://buy.stripe.com/3cIeVdcXq3y2ea8dzOdEs0z' },
+  business: { id: 'business', name: 'Business', price: 4900, priceLabel: '$49/mo', maxPages: 20, features: ['custom domain', 'analytics', 'SEO tools'], paymentLink: 'https://buy.stripe.com/aFa28rbTm4C62rq8fudEs0A' },
+  pro: { id: 'pro', name: 'Pro', price: 9900, priceLabel: '$99/mo', maxPages: 100, features: ['custom domain', 'analytics', 'SEO tools', 'e-commerce', 'booking'], paymentLink: 'https://buy.stripe.com/9B6aEXcXqfgKd642VadEs0B' },
 };
 
 const MIME_TYPES = {
@@ -101,6 +101,21 @@ function setUserSubscription(userId, subData) {
   const db = getSubDb();
   db[userId] = { ...subData, updatedAt: new Date().toISOString() };
   saveSubDb(db);
+}
+
+async function activateSubscription(userId, tierId, session) {
+  const tier = TIERS[tierId];
+  if (userId && tier) {
+    setUserSubscription(userId, {
+      tier: tier.id,
+      status: 'active',
+      maxPages: tier.maxPages,
+      features: tier.features,
+      stripeCustomerId: session.customer,
+      stripeSubscriptionId: session.subscription,
+    });
+    console.log(`Subscription activated: user=${userId}, tier=${tierId}`);
+  }
 }
 
 // --- User persistence ---
@@ -368,6 +383,7 @@ const server = http.createServer(async (req, res) => {
         priceLabel: t.priceLabel,
         maxPages: t.maxPages,
         features: t.features,
+        paymentLink: t.paymentLink,
       }));
       return sendJson(res, 200, tiers);
     }
@@ -429,23 +445,10 @@ const server = http.createServer(async (req, res) => {
           const session = event.data.object;
           const userId = session.client_reference_id;
           const tierId = session.metadata?.tierId || 'starter';
-          const tier = TIERS[tierId];
-
-          if (userId && tier) {
-            setUserSubscription(userId, {
-              tier: tier.id,
-              status: 'active',
-              maxPages: tier.maxPages,
-              features: tier.features,
-              stripeCustomerId: session.customer,
-              stripeSubscriptionId: session.subscription,
-            });
-            console.log(`Subscription activated: user=${userId}, tier=${tierId}`);
-          }
+          await activateSubscription(userId, tierId, session);
         }
 
         if (event.type === 'customer.subscription.deleted') {
-          // Handle subscription cancellation — find user by customer ID
           const subscription = event.data.object;
           const db = getSubDb();
           for (const [userId, sub] of Object.entries(db)) {
@@ -460,6 +463,71 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(200);
         res.end(JSON.stringify({ received: true }));
       });
+      return;
+    }
+
+    // GET /api/stripe-success — called when Stripe redirects back after payment
+    if (req.method === 'GET' && pathname === '/api/stripe-success') {
+      const sessionId = url.searchParams.get('session_id');
+      let tier = 'starter';
+
+      if (sessionId) {
+        try {
+          const session = await stripe.checkout.sessions.retrieve(sessionId);
+          const userId = session.client_reference_id;
+          const tierId = session.metadata?.tierId || 'starter';
+          tier = tierId;
+          if (userId && session.payment_status === 'paid') {
+            await activateSubscription(userId, tierId, session);
+          }
+        } catch (e) {
+          console.error('Stripe success error (continuing):', e.message);
+        }
+      }
+
+      // Also check sessionStorage-based upgrade (from payment link redirects)
+      // and serve a success HTML page
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful — SwiftSite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #F8FAFC; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { background: white; border-radius: 12px; padding: 48px; text-align: center; max-width: 480px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+    .checkmark { font-size: 64px; margin-bottom: 16px; }
+    h1 { font-size: 28px; font-weight: 800; color: #0F172A; margin-bottom: 8px; }
+    p { font-size: 16px; color: #64748B; margin-bottom: 24px; line-height: 1.5; }
+    .btn { display: inline-block; padding: 12px 32px; background: #2563EB; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; transition: background 0.15s; }
+    .btn:hover { background: #1D4ED8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="checkmark">✅</div>
+    <h1>Payment Successful!</h1>
+    <p>Your SwiftSite <strong>${tier}</strong> subscription is now active. You can start building your site right away.</p>
+    <a href="/" class="btn">Go to Editor</a>
+  </div>
+  <script>
+    // Apply upgrade from sessionStorage if available
+    const tier = sessionStorage.getItem('swiftsite-upgrade-tier');
+    const userId = sessionStorage.getItem('swiftsite-upgrade-user');
+    if (tier && userId) {
+      sessionStorage.removeItem('swiftsite-upgrade-tier');
+      sessionStorage.removeItem('swiftsite-upgrade-user');
+      // Inform the SPA by redirecting with a query param
+      window.location.href = '/?upgrade=' + tier;
+    }
+  </script>
+</body>
+</html>`);
       return;
     }
 
