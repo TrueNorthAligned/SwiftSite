@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { AuthProvider, useAuth, authHeaders } from '../auth/AuthContext';
@@ -9,6 +9,7 @@ import Canvas from './Canvas';
 import PropertyEditor from './PropertyEditor';
 import PreviewModal from './PreviewModal';
 import AuthForm from './AuthForm';
+import PricingPage from './PricingPage';
 
 function EditorToolbar() {
   const { state } = useSite();
@@ -17,6 +18,20 @@ function EditorToolbar() {
   const [publishStatus, setPublishStatus] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
+  const [subscription, setSubscription] = useState<any>(null);
+
+  // Fetch subscription on mount
+  useEffect(() => {
+    if (user && token) {
+      fetch('/api/subscription', { headers: authHeaders(token) })
+        .then(r => r.json())
+        .then(data => setSubscription(data))
+        .catch(() => setSubscription({ tier: 'free' }));
+    } else {
+      setSubscription(null);
+    }
+  }, [user, token]);
 
   const handlePublish = async () => {
     if (state.sections.length === 0) {
@@ -93,6 +108,16 @@ function EditorToolbar() {
             <span>{state.sections.length} sections</span>
           </div>
 
+          {user && subscription?.tier !== 'free' && subscription?.tier !== undefined && (
+            <span className="toolbar-tier-badge">{subscription.tier}</span>
+          )}
+
+          {user && subscription?.tier === 'free' && (
+            <button className="toolbar-btn toolbar-btn-upgrade" onClick={() => setShowPricing(true)}>
+              ⭐ Upgrade
+            </button>
+          )}
+
           {loading ? (
             <span className="toolbar-badge">Loading...</span>
           ) : user ? (
@@ -119,6 +144,12 @@ function EditorToolbar() {
           sections={state.sections}
           onClose={() => setShowPreview(false)}
         />
+      )}
+
+      {showPricing && (
+        <div className="pricing-overlay">
+          <PricingPage onClose={() => setShowPricing(false)} />
+        </div>
       )}
     </>
   );

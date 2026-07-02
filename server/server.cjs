@@ -1,33 +1,51 @@
 /**
- * SwiftSite Publish Server with Authentication
+ * SwiftSite Publish Server with Authentication & Stripe
  * Serves the built editor on port 3001 and provides:
- *   POST /api/auth/signup  — create account (email + password)
- *   POST /api/auth/login   — authenticate, returns JWT
- *   POST /api/publish      — save site HTML (auth required)
- *   GET  /site/:id         — serve a published site
- *   GET  /api/sites        — list user's published sites (auth required)
+ *   POST /api/auth/signup       — create account (email + password)
+ *   POST /api/auth/login        — authenticate, returns JWT
+ *   GET  /api/auth/me           — verify token, return user info
+ *   POST /api/publish           — save site HTML (auth required)
+ *   GET  /site/:id              — serve a published site
+ *   GET  /api/sites             — list user's published sites (auth required)
+ *   POST /api/stripe/create-checkout  — create Stripe Checkout session
+ *   POST /api/stripe/webhook    — handle Stripe events
+ *   GET  /api/subscription      — get user's subscription status
  */
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-// JWT & bcrypt — require from node_modules (installed as dependencies)
+// JWT & bcrypt
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// Stripe
+const Stripe = require('stripe');
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder';
+const stripe = Stripe(STRIPE_SECRET_KEY);
+
 const PORT = 3001;
-const JWT_SECRET = 'swiftsite-dev-jwt-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'swiftsite-dev-jwt-secret-change-in-production';
 const PUBLISHED_DIR = '/home/team/shared/published-sites';
 const USERS_DIR = path.join(__dirname, '..', '..', 'shared', 'users');
+const SUBSCRIPTIONS_DIR = path.join(__dirname, '..', '..', 'shared', 'subscriptions');
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 
 // Ensure directories exist
-[PUBLISHED_DIR, USERS_DIR].forEach(dir => {
+[PUBLISHED_DIR, USERS_DIR, SUBSCRIPTIONS_DIR].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 });
+
+// Pricing tiers
+const TIERS = {
+  starter: { id: 'starter', name: 'Starter', price: 1900, priceLabel: '$19/mo', maxPages: 5, features: ['custom domain', 'analytics'] },
+  business: { id: 'business', name: 'Business', price: 4900, priceLabel: '$49/mo', maxPages: 20, features: ['custom domain', 'analytics', 'SEO tools'] },
+  pro: { id: 'pro', name: 'Pro', price: 9900, priceLabel: '$99/mo', maxPages: 100, features: ['custom domain', 'analytics', 'SEO tools', 'e-commerce', 'booking'] },
+};
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -53,7 +71,39 @@ function serveStatic(res, filePath) {
   });
 }
 
-// --- User persistence (simple file-based) ---
+// --- Subscription store ---
+function getSubDb() {
+  const dbPath = path.join(SUBSCRIPTIONS_DIR, 'subscriptions.json');
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, JSON.stringify({}), 'utf-8');
+    return {};
+  }
+  try { return JSON.parse(fs.readFileSync(dbPath, 'utf-8')); }
+  catch { return {}; }
+}
+
+function saveSubDb(db) {
+  const dbPath = path.join(SUBSCRIPTIONS_DIR, 'subscriptions.json');
+  if (!fs.existsSync(path.dirname(dbPath))) fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf-8');
+}
+
+function defaultSubscription() {
+  return { tier: 'free', status: 'active', maxPages: 3, features: [], updatedAt: new Date().toISOString() };
+}
+
+function getUserSubscription(userId) {
+  const db = getSubDb();
+  return db[userId] || defaultSubscription();
+}
+
+function setUserSubscription(userId, subData) {
+  const db = getSubDb();
+  db[userId] = { ...subData, updatedAt: new Date().toISOString() };
+  saveSubDb(db);
+}
+
+// --- User persistence ---
 function getUserDb() {
   const dbPath = path.join(USERS_DIR, 'users.json');
   if (!fs.existsSync(dbPath)) {
@@ -99,6 +149,10 @@ function authenticate(req) {
   } catch {
     return null;
   }
+}
+
+function getBaseUrl(req) {
+  return `http://localhost:${PORT}`;
 }
 
 function sendJson(res, status, data) {
@@ -303,6 +357,119 @@ const server = http.createServer(async (req, res) => {
       } catch (e) {
         return sendJson(res, 500, { error: 'Failed to list sites' });
       }
+    }
+
+    // GET /api/pricing — return pricing tiers (public)
+    if (pathname === '/api/pricing' && req.method === 'GET') {
+      const tiers = Object.values(TIERS).map(t => ({
+        id: t.id,
+        name: t.name,
+        price: t.price,
+        priceLabel: t.priceLabel,
+        maxPages: t.maxPages,
+        features: t.features,
+      }));
+      return sendJson(res, 200, tiers);
+    }
+
+    // ---- STRIPE ENDPOINTS ----
+
+    // POST /api/stripe/create-checkout — create Stripe Checkout session (auth required)
+    if (req.method === 'POST' && pathname === '/api/stripe/create-checkout') {
+      const payload = authenticate(req);
+      if (!payload) return sendJson(res, 401, { error: 'Authentication required' });
+
+      const { tierId, successUrl, cancelUrl } = await parseBody(req);
+      const tier = TIERS[tierId];
+      if (!tier) return sendJson(res, 400, { error: 'Invalid tier' });
+
+      try {
+        const session = await stripe.checkout.sessions.create({
+          mode: 'subscription',
+          payment_method_types: ['card'],
+          line_items: [{
+            price_data: {
+              currency: 'usd',
+              product_data: { name: `SwiftSite ${tier.name}` },
+              unit_amount: tier.price,
+              recurring: { interval: 'month' },
+            },
+            quantity: 1,
+          }],
+          client_reference_id: payload.userId,
+          metadata: { tierId: tier.id },
+          success_url: successUrl || `${getBaseUrl(req)}/pricing?success=true`,
+          cancel_url: cancelUrl || `${getBaseUrl(req)}/pricing?canceled=true`,
+        });
+
+        return sendJson(res, 201, { url: session.url, sessionId: session.id });
+      } catch (e) {
+        console.error('Stripe error:', e);
+        return sendJson(res, 500, { error: 'Failed to create checkout session' });
+      }
+    }
+
+    // POST /api/stripe/webhook — handle Stripe events (no auth)
+    if (req.method === 'POST' && pathname === '/api/stripe/webhook') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', async () => {
+        const sig = req.headers['stripe-signature'];
+        let event;
+        try {
+          event = stripe.webhooks.constructEvent(body, sig, STRIPE_WEBHOOK_SECRET);
+        } catch (e) {
+          console.error('Webhook signature error:', e.message);
+          res.writeHead(400);
+          res.end(JSON.stringify({ error: 'Invalid signature' }));
+          return;
+        }
+
+        if (event.type === 'checkout.session.completed') {
+          const session = event.data.object;
+          const userId = session.client_reference_id;
+          const tierId = session.metadata?.tierId || 'starter';
+          const tier = TIERS[tierId];
+
+          if (userId && tier) {
+            setUserSubscription(userId, {
+              tier: tier.id,
+              status: 'active',
+              maxPages: tier.maxPages,
+              features: tier.features,
+              stripeCustomerId: session.customer,
+              stripeSubscriptionId: session.subscription,
+            });
+            console.log(`Subscription activated: user=${userId}, tier=${tierId}`);
+          }
+        }
+
+        if (event.type === 'customer.subscription.deleted') {
+          // Handle subscription cancellation — find user by customer ID
+          const subscription = event.data.object;
+          const db = getSubDb();
+          for (const [userId, sub] of Object.entries(db)) {
+            if (sub.stripeSubscriptionId === subscription.id) {
+              setUserSubscription(userId, defaultSubscription());
+              console.log(`Subscription cancelled: user=${userId}`);
+              break;
+            }
+          }
+        }
+
+        res.writeHead(200);
+        res.end(JSON.stringify({ received: true }));
+      });
+      return;
+    }
+
+    // GET /api/subscription — get user's subscription status (auth required)
+    if (pathname === '/api/subscription' && req.method === 'GET') {
+      const payload = authenticate(req);
+      if (!payload) return sendJson(res, 401, { error: 'Authentication required' });
+
+      const sub = getUserSubscription(payload.userId);
+      return sendJson(res, 200, sub);
     }
 
     // ---- STATIC FILES ----
