@@ -469,61 +469,110 @@ const server = http.createServer(async (req, res) => {
     // GET /api/stripe-success — called when Stripe redirects back after payment
     if (req.method === 'GET' && pathname === '/api/stripe-success') {
       const sessionId = url.searchParams.get('session_id');
-      let tier = 'starter';
+      // Read tier from sessionStorage-passed query param, or URL, or default
+      const tierParam = url.searchParams.get('tier') || 'starter';
 
-      if (sessionId) {
-        try {
-          const session = await stripe.checkout.sessions.retrieve(sessionId);
-          const userId = session.client_reference_id;
-          const tierId = session.metadata?.tierId || 'starter';
-          tier = tierId;
-          if (userId && session.payment_status === 'paid') {
-            await activateSubscription(userId, tierId, session);
-          }
-        } catch (e) {
-          console.error('Stripe success error (continuing):', e.message);
-        }
-      }
-
-      // Also check sessionStorage-based upgrade (from payment link redirects)
-      // and serve a success HTML page
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Successful — SwiftSite</title>
+  <title>Payment Complete — SwiftSite</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #F8FAFC; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .card { background: white; border-radius: 12px; padding: 48px; text-align: center; max-width: 480px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
-    .checkmark { font-size: 64px; margin-bottom: 16px; }
+    body { font-family: 'Inter', sans-serif; background: #F8FAFC; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+    .card { background: white; border-radius: 12px; padding: 48px; text-align: center; max-width: 480px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+    .icon { font-size: 64px; margin-bottom: 16px; }
     h1 { font-size: 28px; font-weight: 800; color: #0F172A; margin-bottom: 8px; }
-    p { font-size: 16px; color: #64748B; margin-bottom: 24px; line-height: 1.5; }
-    .btn { display: inline-block; padding: 12px 32px; background: #2563EB; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; transition: background 0.15s; }
+    p { font-size: 16px; color: #64748B; margin-bottom: 8px; line-height: 1.5; }
+    .tier-name { font-weight: 700; color: #2563EB; text-transform: capitalize; }
+    .btn { display: inline-block; padding: 14px 36px; background: #2563EB; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: background 0.15s; margin-top: 8px; }
     .btn:hover { background: #1D4ED8; }
+    .btn:disabled { opacity: 0.5; cursor: wait; }
+    .spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .step { margin: 20px 0; }
+    .step-number { display: inline-flex; width: 28px; height: 28px; border-radius: 50%; background: #DBEAFE; color: #2563EB; font-weight: 700; font-size: 14px; align-items: center; justify-content: center; margin-right: 8px; }
+    .step-text { font-size: 14px; color: #64748B; }
+    .loading .btn-text { display: none; }
+    .loading .spinner { display: inline-block; }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="checkmark">✅</div>
-    <h1>Payment Successful!</h1>
-    <p>Your SwiftSite <strong>${tier}</strong> subscription is now active. You can start building your site right away.</p>
-    <a href="/" class="btn">Go to Editor</a>
+    <div class="icon">✅</div>
+    <h1>Payment Complete!</h1>
+    <p>You've paid for <span class="tier-name" id="tierDisplay">${tierParam}</span>.</p>
+    <p style="margin-bottom: 24px; font-size: 14px;">One more step — activate your plan below.</p>
+
+    <div id="activateStep" class="step">
+      <span class="step-number">1</span>
+      <span class="step-text">Log in to your SwiftSite account</span>
+    </div>
+    <div class="step">
+      <span class="step-number">2</span>
+      <span class="step-text">Click the button below to activate</span>
+    </div>
+
+    <button class="btn" id="activateBtn" onclick="activate()">
+      <span class="btn-text">🚀 Activate My Plan</span>
+      <div class="spinner"></div>
+    </button>
+    <div id="statusMsg" style="margin-top: 12px; font-size: 14px; color: #64748B;"></div>
   </div>
+
   <script>
-    // Apply upgrade from sessionStorage if available
-    const tier = sessionStorage.getItem('swiftsite-upgrade-tier');
-    const userId = sessionStorage.getItem('swiftsite-upgrade-user');
-    if (tier && userId) {
-      sessionStorage.removeItem('swiftsite-upgrade-tier');
-      sessionStorage.removeItem('swiftsite-upgrade-user');
-      // Inform the SPA by redirecting with a query param
-      window.location.href = '/?upgrade=' + tier;
+    const tier = sessionStorage.getItem('swiftsite-upgrade-tier') || '${tierParam}';
+    document.getElementById('tierDisplay').textContent = tier;
+
+    // Check if user is logged in by calling /api/auth/me
+    let userToken = localStorage.getItem('swiftsite-auth-token');
+
+    async function activate() {
+      const btn = document.getElementById('activateBtn');
+      const status = document.getElementById('statusMsg');
+      btn.classList.add('loading');
+      btn.disabled = true;
+      status.textContent = '';
+
+      try {
+        if (!userToken) {
+          status.style.color = '#EF4444';
+          status.textContent = 'Please log in first. Go to the editor and log in, then come back here.';
+          btn.classList.remove('loading');
+          btn.disabled = false;
+          return;
+        }
+
+        const res = await fetch('/api/subscription/activate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+          body: JSON.stringify({ tier: tier })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          status.style.color = '#22C55E';
+          status.textContent = '✅ Plan activated! Redirecting to editor...';
+          setTimeout(() => { window.location.href = '/'; }, 1500);
+        } else {
+          throw new Error(data.error || 'Activation failed');
+        }
+      } catch (e) {
+        status.style.color = '#EF4444';
+        status.textContent = 'Error: ' + e.message + '. Try again or go to the editor.';
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    // Auto-activate if token exists
+    if (userToken) {
+      setTimeout(activate, 500);
     }
   </script>
 </body>
@@ -538,6 +587,27 @@ const server = http.createServer(async (req, res) => {
 
       const sub = getUserSubscription(payload.userId);
       return sendJson(res, 200, sub);
+    }
+
+    // POST /api/subscription/activate — activate a paid tier (auth required)
+    if (req.method === 'POST' && pathname === '/api/subscription/activate') {
+      const payload = authenticate(req);
+      if (!payload) return sendJson(res, 401, { error: 'Authentication required' });
+
+      const { tier } = await parseBody(req);
+      if (!tier || !TIERS[tier]) return sendJson(res, 400, { error: 'Invalid tier' });
+
+      const tierData = TIERS[tier];
+      setUserSubscription(payload.userId, {
+        tier: tierData.id,
+        status: 'active',
+        maxPages: tierData.maxPages,
+        features: tierData.features,
+        activatedAt: new Date().toISOString(),
+      });
+
+      console.log(`Subscription activated via direct endpoint: user=${payload.userId}, tier=${tier}`);
+      return sendJson(res, 200, { success: true, subscription: getUserSubscription(payload.userId) });
     }
 
     // ---- STATIC FILES ----
