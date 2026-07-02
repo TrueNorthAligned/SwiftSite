@@ -1,22 +1,33 @@
 import { useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { AuthProvider, useAuth, authHeaders } from '../auth/AuthContext';
 import { SiteProvider, useSite } from '../store';
 import { generateSiteHtml } from '../publish';
 import SectionPicker from './SectionPicker';
 import Canvas from './Canvas';
 import PropertyEditor from './PropertyEditor';
 import PreviewModal from './PreviewModal';
+import AuthForm from './AuthForm';
 
 function EditorToolbar() {
   const { state } = useSite();
+  const { user, token, loading } = useAuth();
   const [showPreview, setShowPreview] = useState(false);
   const [publishStatus, setPublishStatus] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   const handlePublish = async () => {
     if (state.sections.length === 0) {
       setPublishStatus('Add at least one section before publishing');
+      setTimeout(() => setPublishStatus(null), 3000);
+      return;
+    }
+
+    if (!user) {
+      setShowAuth(true);
+      setPublishStatus('Please log in to publish');
       setTimeout(() => setPublishStatus(null), 3000);
       return;
     }
@@ -26,19 +37,23 @@ function EditorToolbar() {
 
     try {
       const html = generateSiteHtml(state.sections);
+      const siteName = prompt('Name your site:', 'My SwiftSite') || 'Untitled Site';
       const resp = await fetch('/api/publish', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html }),
+        headers: authHeaders(token),
+        body: JSON.stringify({ html, name: siteName }),
       });
 
-      if (!resp.ok) throw new Error('Publish failed');
+      if (!resp.ok) {
+        const err = await resp.json();
+        throw new Error(err.error || 'Publish failed');
+      }
 
       const data = await resp.json();
-      setPublishStatus(`Published! ID: ${data.id}`);
+      setPublishStatus(`Published "${siteName}"!`);
       setTimeout(() => setPublishStatus(null), 4000);
-    } catch (err) {
-      setPublishStatus('Publish failed — is the server running?');
+    } catch (err: any) {
+      setPublishStatus(err.message || 'Publish failed');
       console.error(err);
       setTimeout(() => setPublishStatus(null), 4000);
     } finally {
@@ -77,7 +92,25 @@ function EditorToolbar() {
             <span className="toolbar-status-dot"></span>
             <span>{state.sections.length} sections</span>
           </div>
+
+          {loading ? (
+            <span className="toolbar-badge">Loading...</span>
+          ) : user ? (
+            <div className="auth-status-compact" onClick={() => setShowAuth(!showAuth)} title={user.email}>
+              <span className="auth-user-avatar-sm">{user.email[0].toUpperCase()}</span>
+            </div>
+          ) : (
+            <button className="toolbar-btn toolbar-btn-auth" onClick={() => setShowAuth(!showAuth)}>
+              Log In
+            </button>
+          )}
           <span className="toolbar-badge">Beta</span>
+
+          {showAuth && (
+            <div className="auth-dropdown">
+              <AuthForm onSuccess={() => setShowAuth(false)} />
+            </div>
+          )}
         </div>
       </header>
 
@@ -94,25 +127,27 @@ function EditorToolbar() {
 function EditorLayout() {
   return (
     <DndProvider backend={HTML5Backend}>
-      <SiteProvider>
-        <div className="editor-layout">
-          <EditorToolbar />
+      <AuthProvider>
+        <SiteProvider>
+          <div className="editor-layout">
+            <EditorToolbar />
 
-          <div className="editor-body">
-            <aside className="editor-sidebar editor-sidebar-left">
-              <SectionPicker />
-            </aside>
+            <div className="editor-body">
+              <aside className="editor-sidebar editor-sidebar-left">
+                <SectionPicker />
+              </aside>
 
-            <main className="editor-main">
-              <Canvas />
-            </main>
+              <main className="editor-main">
+                <Canvas />
+              </main>
 
-            <aside className="editor-sidebar editor-sidebar-right">
-              <PropertyEditor />
-            </aside>
+              <aside className="editor-sidebar editor-sidebar-right">
+                <PropertyEditor />
+              </aside>
+            </div>
           </div>
-        </div>
-      </SiteProvider>
+        </SiteProvider>
+      </AuthProvider>
     </DndProvider>
   );
 }

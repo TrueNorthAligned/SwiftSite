@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "jsonwebtoken": "^9.0.3",
     "react": "^19.2.7",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
