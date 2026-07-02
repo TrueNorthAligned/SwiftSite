@@ -18,6 +18,8 @@ const USERS_DIR = path.join(__dirname, '..', '..', 'shared', 'users');
 const SUBSCRIPTIONS_DIR = path.join(__dirname, '..', '..', 'shared', 'subscriptions');
 const DIST_DIR = path.join(__dirname, '..', 'dist');           // Editor built with --base=/editor/
 const MARKETING_FILE = path.join(__dirname, '..', 'marketing-index.html');
+const BRAND_DIR = '/home/team/shared/swiftsite-brand';       // Brand assets (images, sitemap, robots)
+const PUBLIC_DIR = path.join(__dirname, '..', 'public');     // Public assets (logo SVG)
 
 // Ensure directories exist
 [PUBLISHED_DIR, USERS_DIR, SUBSCRIPTIONS_DIR].forEach(dir => {
@@ -187,7 +189,20 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // === STATIC FILES (Marketing Landing Page) ===
+    // === STATIC FILES (SEO, Brand Assets) ===
+    const staticFiles = {
+      '/sitemap.xml': path.join(BRAND_DIR, 'sitemap.xml'),
+      '/robots.txt': path.join(BRAND_DIR, 'robots.txt'),
+      '/logo-icon.png': path.join(BRAND_DIR, 'logo-icon.png'),
+      '/logo-icon.svg': path.join(PUBLIC_DIR, 'logo-icon.svg'),
+      '/favicon.ico': path.join(PUBLIC_DIR, 'logo-icon.svg'),
+    };
+    if (staticFiles[pathname] && req.method === 'GET') {
+      serveStatic(res, staticFiles[pathname]);
+      return;
+    }
+
+    // === MARKETING LANDING PAGE ===
     if (pathname === '/' || pathname === '') {
       serveStatic(res, MARKETING_FILE);
       return;
