@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftSite — Build Your Business Website. Fast.</title>
+  <meta name="description" content="SwiftSite is a dead-simple drag-and-drop website builder for small-to-medium businesses. No coding, no designers — just pick a template and publish in hours.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* === CSS Variables (Brand Colors) === */
+    :root {
+      --swift-blue: #2563EB;
+      --swift-blue-dark: #1D4ED8;
+      --swift-blue-light: #DBEAFE;
+      --swift-dark: #0F172A;
+      --swift-dark-soft: #1E293B;
+      --swift-white: #FFFFFF;
+      --teal-accent: #0D9488;
+      --teal-light: #CCFBF1;
+      --light-gray: #F8FAFC;
+      --border-gray: #E2E8F0;
+      --text-secondary: #64748B;
+      --text-muted: #94A3B8;
+      --success-green: #22C55E;
+      --green-light: #DCFCE7;
+      --warning-amber: #F59E0B;
+      --error-red: #EF4444;
+
+      --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      --max-width: 1200px;
+      --border-radius: 10px;
+      --border-radius-sm: 6px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+    }
+
+    /* === Reset & Base === */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-family);
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--swift-dark);
+      background: var(--swift-white);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* === Typography === */
+    h1, h2, h3, h4 {
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); }
+    h2 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); }
+    h3 { font-size: clamp(1.25rem, 2.5vw, 1.5rem); }
+
+    .section-badge {
+      display: inline-block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--swift-blue);
+      background: var(--swift-blue-light);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 16px;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+
+    /* === Buttons === */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: var(--font-family);
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 12px 28px;
+      border-radius: var(--border-radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--swift-blue);
+      color: var(--swift-white);
+      box-shadow: 0 1px 3px rgba(37,99,235,0.3);
+    }
+    .btn-primary:hover {
+      background: var(--swift-blue-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--swift-blue);
+      border: 2px solid var(--swift-blue);
+    }
+    .btn-secondary:hover {
+      background: var(--swift-blue-light);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--swift-dark);
+    }
+    .btn-ghost:hover {
+      background: var(--light-gray);
+    }
+
+    .btn-white {
+      background: var(--swift-white);
+      color: var(--swift-blue);
+    }
+    .btn-white:hover {
+      background: var(--light-gray);
+      transform: translateY(-1px);
+    }
+
+    .btn-lg {
+      padding: 16px 32px;
+      font-size: 1.125rem;
+      border-radius: var(--border-radius);
+    }
+
+    /* === Navigation === */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-gray);
+      transition: box-shadow 0.3s;
+    }
+
+    .nav.scrolled {
+      box-shadow: var(--shadow-md);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.375rem;
+      color: var(--swift-dark);
+    }
+
+    .nav-logo img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: var(--swift-dark);
+    }
+
+    .nav-cta {
+      margin-left: 8px;
+    }
+
+    /* Mobile menu toggle */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .menu-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--swift-dark);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* === Hero Section === */
+    .hero {
+      padding: 160px 0 80px;
+      background: linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 50%, #F0FDF4 100%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(13,148,136,0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-content {
+      max-width: 580px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--swift-blue);
+      background: var(--swift-blue-light);
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      margin-bottom: 20px;
+    }
+    .hero h1 span {
+      color: var(--swift-blue);
+      position: relative;
+    }
+    .hero h1 span::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: rgba(37,99,235,0.15);
+      border-radius: 4px;
+    }
+
+    .hero p {
+      font-size: 1.1875rem;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border-gray);
+    }
+
+    .hero-stat h3 {
+      font-size: 1.75rem;
+      color: var(--swift-dark);
+      margin-bottom: 2px;
+    }
+    .hero-stat p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-card-mock {
+      width: 100%;
+      max-width: 500px;
+      background: var(--swift-white);
+      border-radius: 16px;
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      border: 1px solid var(--border-gray);
+    }
+
+    .hero-card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-gray);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-card-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .hero-card-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border-gray);
+    }
+    .hero-card-dots span:first-child { background: #EF4444; }
+    .hero-card-dots span:nth-child(2) { background: #F59E0B; }
+    .hero-card-dots span:last-child { background: #22C55E; }
+
+    .hero-card-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-left: 16px;
+      flex: 1;
+    }
+    .hero-card-toolbar span {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--light-gray);
+    }
+    .hero-card-toolbar span:nth-child(1) { width: 80px; }
+    .hero-card-toolbar span:nth-child(2) { width: 60px; }
+    .hero-card-toolbar span:nth-child(3) { width: 100px; }
+
+    .hero-card-body {
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hero-card-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-card-row .thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: var(--light-gray);
+    }
+    .hero-card-row .thumb.blue { background: var(--swift-blue-light); }
+    .hero-card-row .thumb.teal { background: var(--teal-light); }
+    .hero-card-row .thumb.green { background: var(--green-light); }
+
+    .hero-card-row .lines {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hero-card-row .lines span {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--light-gray);
+    }
+    .hero-card-row .lines span:nth-child(1) { width: 70%; }
+    .hero-card-row .lines span:nth-child(2) { width: 40%; }
+
+    .hero-card-row .drag-handle {
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      font-size: 12px;
+      opacity: 0.5;
+    }
+
+    /* === Features Section === */
+    .features {
+      padding: 100px 0;
+      background: var(--swift-white);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .feature-card {
+      background: var(--swift-white);
+      border: 1px solid var(--border-gray);
+      border-radius: var(--border-radius);
+      padding: 32px;
+      transition: all 0.25s ease;
+    }
+    .feature-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+      border-color: transparent;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .feature-icon.blue { background: var(--swift-blue-light); }
+    .feature-icon.teal { background: var(--teal-light); }
+    .feature-icon.green { background: var(--green-light); }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+      line-height: 1.7;
+    }
+
+    /* === Templates Showcase === */
+    .templates {
+      padding: 100px 0;
+      background: var(--light-gray);
+    }
+
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .template-card {
+      background: var(--swift-white);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-gray);
+      transition: all 0.25s ease;
+    }
+    .template-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+
+    .template-preview {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .template-preview.restaurant {
+      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    }
+    .template-preview.lawyer {
+      background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    }
+    .template-preview.salon {
+      background: linear-gradient(135deg, #FCE7F3, #FBCFE8);
+    }
+    .template-preview.lines {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .template-preview.lines span {
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(0,0,0,0.1);
+    }
+    .template-preview.lines span:nth-child(1) { width: 60%; }
+    .template-preview.lines span:nth-child(2) { width: 80%; }
+    .template-preview.lines span:nth-child(3) { width: 40%; }
+
+    .template-info {
+      padding: 20px;
+    }
+    .template-info h4 {
+      font-size: 1.0625rem;
+      margin-bottom: 4px;
+    }
+    .template-info p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* === Pricing Section === */
+    .pricing {
+      padding: 100px 0;
+      background: var(--swift-white);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .pricing-card {
+      background: var(--swift-white);
+      border: 2px solid var(--border-gray);
+      border-radius: 16px;
+      padding: 40px 32px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .pricing-card:hover {
+      border-color: var(--swift-blue);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .pricing-card.featured {
+      border-color: var(--swift-blue);
+      box-shadow: var(--shadow-lg);
+      transform: scale(1.02);
+    }
+    .pricing-card.featured:hover {
+      transform: scale(1.03);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--swift-blue);
+      color: var(--swift-white);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 16px;
+      border-radius: 100px;
+    }
+
+    .pricing-plan-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .pricing-plan-desc {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .pricing-price {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .pricing-price .dollar {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+    .pricing-price .amount {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--swift-dark);
+      letter-spacing: -0.03em;
+    }
+    .pricing-price .period {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .pricing-annual-note {
+      font-size: 0.8125rem;
+      color: var(--success-green);
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin: 24px 0 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.9375rem;
+      color: var(--swift-dark-soft);
+    }
+    .pricing-features li .check {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      background: var(--green-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--success-green);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .pricing-features li .muted {
+      color: var(--text-muted);
+    }
+
+    .pricing-card .btn {
+      width: 100%;
+    }
+
+    /* === Testimonials === */
+    .testimonials {
+      padding: 100px 0;
+      background: var(--light-gray);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      background: var(--swift-white);
+      border-radius: var(--border-radius);
+      padding: 32px;
+      border: 1px solid var(--border-gray);
+    }
+
+    .testimonial-stars {
+      color: #F59E0B;
+      font-size: 1.125rem;
+      margin-bottom: 16px;
+    }
+
+    .testimonial-card blockquote {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .testimonial-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--swift-blue-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--swift-blue);
+      font-size: 0.875rem;
+    }
+    .testimonial-author-info strong {
+      display: block;
+      font-size: 0.9375rem;
+      font-weight: 600;
+    }
+    .testimonial-author-info span {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    /* === CTA Section === */
+    .cta-section {
+      padding: 100px 0;
+      background: linear-gradient(135deg, var(--swift-dark) 0%, #1E293B 100%);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      color: var(--swift-white);
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .cta-section p {
+      color: rgba(255,255,255,0.65);
+      font-size: 1.125rem;
+      max-width: 540px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+      position: relative;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .cta-trust {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 40px;
+      color: rgba(255,255,255,0.45);
+      font-size: 0.875rem;
+      position: relative;
+      flex-wrap: wrap;
+    }
+    .cta-trust span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* === Footer === */
+    .footer {
+      padding: 48px 0;
+      background: var(--swift-dark);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+    }
+
+    .footer-brand p {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.875rem;
+      margin-top: 16px;
+      max-width: 320px;
+      line-height: 1.7;
+    }
+
+    .footer-col h4 {
+      color: var(--swift-white);
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-col ul a {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .footer-col ul a:hover {
+      color: var(--swift-white);
+    }
+
+    .footer-bottom {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-bottom p {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.8125rem;
+    }
+    .footer-social {
+      display: flex;
+      gap: 16px;
+    }
+    .footer-social a {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .footer-social a:hover {
+      color: var(--swift-white);
+    }
+
+    /* === Responsive === */
+    @media (max-width: 1024px) {
+      .features-grid,
+      .templates-grid,
+      .pricing-grid,
+      .testimonials-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+      .hero-content {
+        max-width: 100%;
+      }
+      .hero-visual {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 72px;
+        left: 0;
+        right: 0;
+        background: var(--swift-white);
+        flex-direction: column;
+        padding: 16px 24px;
+        gap: 16px;
+        border-bottom: 1px solid var(--border-gray);
+        box-shadow: var(--shadow-lg);
+      }
+      .nav-links.open {
+        display: flex;
+      }
+      .nav-links .btn {
+        width: 100%;
+      }
+      .menu-toggle {
+        display: flex;
+      }
+
+      .hero {
+        padding: 120px 0 60px;
+      }
+      .hero-stats {
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .features-grid,
+      .templates-grid,
+      .pricing-grid,
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-card.featured {
+        transform: none;
+      }
+      .pricing-card.featured:hover {
+        transform: translateY(-4px);
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+      .footer-brand {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-buttons {
+        flex-direction: column;
+      }
+      .hero-buttons .btn {
+        width: 100%;
+      }
+      .pricing-card {
+        padding: 32px 24px;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- === Navigation === -->
+  <nav class="nav" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <img src="logo-icon.png" alt="SwiftSite" width="36" height="36">
+        SwiftSite
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#templates">Templates</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="/editor" class="btn btn-primary nav-cta">Start Free</a></li>
+      </ul>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- === Hero Section === -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <div class="hero-badge">
+            🚀 No coding required
+          </div>
+          <h1>
+            Build your business website.<br>
+            <span>No code. No designers. In hours.</span>
+          </h1>
+          <p>
+            SwiftSite is the dead-simple drag-and-drop website builder made for small businesses.
+            Pick a professional template, customize it with your colors and content, and publish —
+            all without writing a single line of code.
+          </p>
+          <div class="hero-buttons">
+            <a href="/editor" class="btn btn-primary btn-lg">Start Free →</a>
+            <a href="#templates" class="btn btn-secondary btn-lg">See Templates</a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <h3>5,000+</h3>
+              <p>Sites Published</p>
+            </div>
+            <div class="hero-stat">
+              <h3>4.9★</h3>
+              <p>Average Rating</p>
+            </div>
+            <div class="hero-stat">
+              <h3>&lt; 3 hrs</h3>
+              <p>Time to Launch</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card-mock">
+            <div class="hero-card-header">
+              <div class="hero-card-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="hero-card-toolbar">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+            <div class="hero-card-body">
+              <div class="hero-card-row">
+                <div class="thumb blue"></div>
+                <div class="lines">
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="drag-handle">⠿</div>
+              </div>
+              <div class="hero-card-row">
+                <div class="thumb teal"></div>
+                <div class="lines">
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="drag-handle">⠿</div>
+              </div>
+              <div class="hero-card-row">
+                <div class="thumb green"></div>
+                <div class="lines">
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="drag-handle">⠿</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === Features Section === -->
+  <section class="features" id="features">
+    <div class="container">
+      <span class="section-badge">Why SwiftSite</span>
+      <h2 class="section-title">Everything you need to get online — nothing you don't</h2>
+      <p class="section-subtitle">
+        We stripped away the complexity so you can focus on what matters: your business.
+      </p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon blue">🎨</div>
+          <h3>Drag & Drop Builder</h3>
+          <p>Simply drag elements — text, images, buttons — onto your page. Arrange, resize, and style with zero technical skills.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon teal">📱</div>
+          <h3>Mobile-Optimized</h3>
+          <p>Every site looks stunning on phones, tablets, and desktops — automatically. No extra work needed.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon green">🔍</div>
+          <h3>SEO-Optimized</h3>
+          <p>Built-in SEO best practices mean your site ranks on Google from day one. Meta tags, sitemaps, and more handled for you.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon blue">⚡</div>
+          <h3>Lightning Fast</h3>
+          <p>Blazing-fast load times keep visitors engaged. SwiftSite pages are optimized for speed out of the box.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon teal">🖼️</div>
+          <h3>Beautiful Templates</h3>
+          <p>Start with 50+ professionally designed templates tailored for restaurants, law firms, salons, contractors, and more.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon green">🔒</div>
+          <h3>SSL & Hosting Included</h3>
+          <p>Free SSL certificate, reliable hosting, and a custom domain (Business plan and up). Your site stays safe and always online.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === Templates Showcase === -->
+  <section class="templates" id="templates">
+    <div class="container">
+      <span class="section-badge">Templates</span>
+      <h2 class="section-title">Start with a template built for your industry</h2>
+      <p class="section-subtitle">
+        50+ professionally designed templates. Pick one, customize it, and publish — it's that easy.
+      </p>
+      <div class="templates-grid">
+        <div class="template-card">
+          <div class="template-preview restaurant">
+            🍽️
+            <div class="lines">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="template-info">
+            <h4>Bistro & Restaurant</h4>
+            <p>Menu display, reservations, location map</p>
+          </div>
+        </div>
+        <div class="template-card">
+          <div class="template-preview lawyer">
+            ⚖️
+            <div class="lines">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="template-info">
+            <h4>Law Firm</h4>
+            <p>Practice areas, attorney profiles, contact form</p>
+          </div>
+        </div>
+        <div class="template-card">
+          <div class="template-preview salon">
+            💇
+            <div class="lines">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="template-info">
+            <h4>Salon & Spa</h4>
+            <p>Service menu, booking calendar, gallery</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === Pricing Section === -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <span class="section-badge">Pricing</span>
+      <h2 class="section-title">Simple, transparent pricing</h2>
+      <p class="section-subtitle">
+        Start free, upgrade when you need more. No hidden fees, no surprises.
+      </p>
+      <div class="pricing-grid">
+        <!-- Starter -->
+        <div class="pricing-card">
+          <div class="pricing-plan-name">Starter</div>
+          <div class="pricing-plan-desc">Perfect for getting started</div>
+          <div class="pricing-price">
+            <span class="dollar">$</span>
+            <span class="amount">19</span>
+            <span class="period">/mo</span>
+          </div>
+          <div class="pricing-annual-note">or $190/yr (save 17%)</div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> 1 website</li>
+            <li><span class="check">✓</span> Up to 5 pages</li>
+            <li><span class="check">✓</span> Mobile-optimized</li>
+            <li><span class="check">✓</span> Free SSL & hosting</li>
+            <li><span class="check">✓</span> SwiftSite subdomain</li>
+            <li><span class="check">✓</span> Basic analytics</li>
+            <li><span class="check" style="opacity:0.2">✓</span> <span class="muted">Custom domain</span></li>
+          </ul>
+          <a href="#" class="btn btn-secondary">Get Started</a>
+        </div>
+
+        <!-- Business (Featured) -->
+        <div class="pricing-card featured">
+          <div class="pricing-badge">Most Popular</div>
+          <div class="pricing-plan-name">Business</div>
+          <div class="pricing-plan-desc">For growing businesses</div>
+          <div class="pricing-price">
+            <span class="dollar">$</span>
+            <span class="amount">49</span>
+            <span class="period">/mo</span>
+          </div>
+          <div class="pricing-annual-note">or $490/yr (save 17%)</div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> 1 website</li>
+            <li><span class="check">✓</span> Unlimited pages</li>
+            <li><span class="check">✓</span> Custom domain included</li>
+            <li><span class="check">✓</span> Advanced analytics</li>
+            <li><span class="check">✓</span> Remove SwiftSite branding</li>
+            <li><span class="check">✓</span> Priority support</li>
+            <li><span class="check" style="opacity:0.2">✓</span> <span class="muted">E-commerce & booking</span></li>
+          </ul>
+          <a href="#" class="btn btn-primary">Start Free Trial</a>
+        </div>
+
+        <!-- Pro -->
+        <div class="pricing-card">
+          <div class="pricing-plan-name">Pro</div>
+          <div class="pricing-plan-desc">For power users</div>
+          <div class="pricing-price">
+            <span class="dollar">$</span>
+            <span class="amount">99</span>
+            <span class="period">/mo</span>
+          </div>
+          <div class="pricing-annual-note">or $990/yr (save 17%)</div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Up to 5 websites</li>
+            <li><span class="check">✓</span> Unlimited pages per site</li>
+            <li><span class="check">✓</span> E-commerce store</li>
+            <li><span class="check">✓</span> Online booking system</li>
+            <li><span class="check">✓</span> AI content generation</li>
+            <li><span class="check">✓</span> Priority support</li>
+            <li><span class="check">✓</span> Premium templates access</li>
+          </ul>
+          <a href="#" class="btn btn-secondary">Start Free Trial</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === Testimonials === -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <span class="section-badge">Testimonials</span>
+      <h2 class="section-title">Trusted by business owners like you</h2>
+      <p class="section-subtitle">
+        See what our customers are saying about their SwiftSite experience.
+      </p>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>"I had my law firm's website up in an afternoon. The templates are professional and the drag-and-drop editor is ridiculously easy. My clients book consultations through the site now."</blockquote>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MR</div>
+            <div class="testimonial-author-info">
+              <strong>Maria Rodriguez</strong>
+              <span>Rodriguez & Associates, P.C.</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>"We tried Squarespace and Wix — both were too complicated for our small restaurant. SwiftSite was the only one that just worked. Our online menu and reservations are live."</blockquote>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">JT</div>
+            <div class="testimonial-author-info">
+              <strong>James Tanaka</strong>
+              <span>Tanaka Ramen House</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>"As a contractor, I needed a simple site to showcase my work. SwiftSite's templates made me look like I hired an expensive agency. Best $49 I've ever spent on my business."</blockquote>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">DK</div>
+            <div class="testimonial-author-info">
+              <strong>Dave Kowalski</strong>
+              <span>Kowalski Home Remodeling</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === CTA Section === -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Ready to build your site?</h2>
+      <p>Join 5,000+ businesses already online with SwiftSite. No credit card required — start free today.</p>
+      <div class="cta-buttons">
+        <a href="#" class="btn btn-white btn-lg">Start Free →</a>
+        <a href="#" class="btn btn-ghost btn-lg" style="color: rgba(255,255,255,0.8); border: 2px solid rgba(255,255,255,0.2);">Talk to Sales</a>
+      </div>
+      <div class="cta-trust">
+        <span>🔒 No credit card required</span>
+        <span>⏱️ Cancel anytime</span>
+        <span>📧 Free support included</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- === Footer === -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo" style="color: var(--swift-white);">
+            <img src="logo-icon.png" alt="SwiftSite" width="28" height="28">
+            SwiftSite
+          </a>
+          <p>The dead-simple website builder for small-to-medium businesses. No coding. No designers. Just publish.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#">Templates</a></li>
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Pricing</a></li>
+            <li><a href="#">Integrations</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 SwiftSite. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="#">Twitter/X</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    menuToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+
+    // Close menu on link click (mobile)
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+      });
+    });
+
+    // Navbar shadow on scroll
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 10) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+  </script>
+
+</body>
+</html>
