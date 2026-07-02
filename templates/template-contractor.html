@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kowalski Home Remodeling — Contractor</title>
+  <meta name="description" content="Kowalski Home Remodeling offers kitchen & bath renovations, roofing, flooring, decks, and whole-home remodeling. Free estimates.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --swift-blue: #2563EB; --swift-blue-dark: #1D4ED8; --swift-blue-light: #DBEAFE; --swift-dark: #0F172A; --swift-white: #FFFFFF; --teal-accent: #0D9488; --light-gray: #F8FAFC; --border-gray: #E2E8F0; --text-secondary: #64748B; --text-muted: #94A3B8; --success-green: #22C55E; --amber: #D97706; --amber-light: #FEF3C7; --font-family: 'Inter', system-ui, sans-serif; --max-width: 1100px; --radius: 10px; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-family); font-size: 16px; line-height: 1.6; color: var(--swift-dark); background: var(--swift-white); }
+    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+    h1,h2,h3 { font-weight: 700; line-height: 1.2; }
+    h1 { font-size: clamp(2rem,5vw,3.25rem); }
+    h2 { font-size: clamp(1.5rem,3vw,2.25rem); margin-bottom: 12px; }
+    h3 { font-size: 1.125rem; margin-bottom: 8px; }
+    .section-title { text-align: center; max-width: 640px; margin: 0 auto 16px; }
+    .section-subtitle { text-align: center; color: var(--text-secondary); max-width: 560px; margin: 0 auto 48px; font-size: 1.0625rem; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-family); font-weight: 600; font-size: 1rem; padding: 12px 28px; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.2s; white-space: nowrap; text-decoration: none; }
+    .btn-primary { background: var(--amber); color: var(--swift-white); }
+    .btn-primary:hover { background: #B45309; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(217,119,6,0.4); }
+    .btn-outline { background: transparent; color: var(--swift-dark); border: 2px solid var(--border-gray); }
+    .btn-outline:hover { background: var(--light-gray); }
+    .btn-outline-blue { background: transparent; color: var(--swift-blue); border: 2px solid var(--swift-blue); }
+    .btn-outline-blue:hover { background: var(--swift-blue-light); }
+
+    .nav { position: fixed; top:0; left:0; right:0; z-index:100; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom:1px solid var(--border-gray); }
+    .nav-inner { display:flex; align-items:center; justify-content:space-between; height:72px; max-width:var(--max-width); margin:0 auto; padding:0 24px; }
+    .nav-logo { font-size:1.25rem; font-weight:800; color:var(--swift-dark); text-decoration:none; }
+    .nav-logo span { color: var(--amber); }
+    .nav-links { display:flex; gap:28px; list-style:none; align-items:center; }
+    .nav-links a { font-size:0.9375rem; font-weight:500; color:var(--text-secondary); text-decoration:none; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--swift-dark); }
+
+    .hero { padding:140px 0 80px; background: linear-gradient(135deg, #1E293B, #0F172A); color:var(--swift-white); position:relative; overflow:hidden; }
+    .hero::before { content:''; position:absolute; top:-40%; right:-20%; width:500px; height:500px; background:radial-gradient(circle, rgba(217,119,6,0.12), transparent 70%); pointer-events:none; }
+    .hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; position:relative; z-index:1; }
+    .hero h1 { margin-bottom:16px; }
+    .hero h1 span { color: var(--amber); }
+    .hero p { font-size:1.125rem; color:rgba(255,255,255,0.65); margin-bottom:32px; line-height:1.7; }
+    .hero-stats { display:flex; gap:40px; margin-top:40px; }
+    .hero-stat h3 { font-size:1.75rem; color:var(--swift-white); }
+    .hero-stat p { font-size:0.8125rem; color:rgba(255,255,255,0.45); }
+    .hero-image { background: rgba(255,255,255,0.05); border-radius:var(--radius); height:300px; display:flex; align-items:center; justify-content:center; font-size:4rem; border:1px solid rgba(255,255,255,0.1); }
+
+    section { padding: 80px 0; }
+
+    .about { background: var(--light-gray); }
+    .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; }
+    .about-image { background: var(--amber-light); border-radius:var(--radius); height:300px; display:flex; align-items:center; justify-content:center; font-size:3.5rem; }
+    .about-content p { color:var(--text-secondary); line-height:1.7; margin-bottom:16px; }
+
+    .services { background: var(--swift-white); }
+    .services-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+    .service-card { border:1px solid var(--border-gray); border-radius:var(--radius); overflow:hidden; transition:all 0.25s; background:var(--swift-white); }
+    .service-card:hover { box-shadow:var(--shadow); transform:translateY(-4px); }
+    .service-img { height:180px; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+    .service-img.kitchen { background:linear-gradient(135deg, #FEF3C7, #FDE68A); }
+    .service-img.roofing { background:linear-gradient(135deg, #E2E8F0, #CBD5E1); }
+    .service-img.deck { background:linear-gradient(135deg, #D1FAE5, #A7F3D0); }
+    .service-img.flooring { background:linear-gradient(135deg, #FEF3C7, #FDE68A); }
+    .service-img.bath { background:linear-gradient(135deg, #DBEAFE, #BFDBFE); }
+    .service-img.paint { background:linear-gradient(135deg, #F3E8FF, #E9D5FF); }
+    .service-info { padding:24px; }
+    .service-info p { color:var(--text-secondary); font-size:0.9375rem; line-height:1.6; }
+
+    .testimonial { background: var(--light-gray); }
+    .testimonial-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+    .testimonial-card { background:var(--swift-white); border-radius:var(--radius); padding:28px; border:1px solid var(--border-gray); }
+    .testimonial-stars { color: var(--amber); margin-bottom:12px; }
+    .testimonial-card blockquote { font-size:0.9375rem; color:var(--text-secondary); font-style:italic; line-height:1.7; margin-bottom:16px; }
+    .testimonial-author { font-weight:600; font-size:0.875rem; }
+
+    .contact { background: var(--swift-white); }
+    .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+    .contact-info p { color:var(--text-secondary); margin-bottom:8px; font-size:0.9375rem; }
+    .contact-info .label { font-weight:600; color:var(--swift-dark); }
+    .contact-badge { display:inline-flex; align-items:center; gap:6px; background:var(--amber-light); color:var(--amber); padding:6px 14px; border-radius:100px; font-size:0.875rem; font-weight:600; margin-bottom:16px; }
+    .contact-form input,.contact-form textarea,.contact-form select { width:100%; padding:12px 16px; border:1px solid var(--border-gray); border-radius:6px; font-family:var(--font-family); font-size:0.9375rem; margin-bottom:12px; }
+    .contact-form textarea { height:100px; resize:vertical; }
+    .contact-form input:focus,.contact-form textarea:focus,.contact-form select:focus { outline:none; border-color:var(--amber); }
+
+    .footer { background: var(--swift-dark); color:rgba(255,255,255,0.5); padding:40px 0; text-align:center; font-size:0.875rem; }
+    .footer a { color: var(--amber); text-decoration:none; }
+
+    @media (max-width:768px) {
+      .hero-grid, .about-grid, .contact-grid { grid-template-columns:1fr; }
+      .services-grid, .testimonial-grid { grid-template-columns:1fr 1fr; }
+      .nav-links { display:none; }
+      .hero-stats { flex-wrap:wrap; gap:24px; }
+    }
+    @media (max-width:480px) {
+      .services-grid, .testimonial-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">Kowalski <span>Home Remodeling</span></a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#testimonials">Reviews</a></li>
+        <li><a href="#contact" class="btn btn-primary">Get a Free Quote</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <h1>Your home,<br><span>transformed.</span></h1>
+          <p>From kitchen renovations to new roofs, decks to basements — Kowalski Home Remodeling brings craftsmanship, integrity, and over 15 years of experience to every project.</p>
+          <a href="#contact" class="btn btn-primary">Get a Free Estimate</a>
+          <div class="hero-stats">
+            <div class="hero-stat"><h3>500+</h3><p>Projects Completed</p></div>
+            <div class="hero-stat"><h3>15+</h3><p>Years Experience</p></div>
+            <div class="hero-stat"><h3>100%</h3><p>Licensed & Insured</p></div>
+          </div>
+        </div>
+        <div class="hero-image">🏠</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image">🔨</div>
+        <div class="about-content">
+          <h2>Built on Trust</h2>
+          <p>Kowalski Home Remodeling has been serving Charleston homeowners since 2010. We believe in doing the job right the first time — on budget, on schedule, and with no shortcuts.</p>
+          <p>Every project starts with a detailed consultation and quote. Our team of skilled craftsmen handles everything from permits to clean-up, so you can enjoy your newly transformed space without the stress.</p>
+          <div style="display:flex;gap:24px;flex-wrap:wrap;">
+            <span style="font-size:0.9375rem;">✅ Licensed &amp; Bonded</span>
+            <span style="font-size:0.9375rem;">✅ Free Estimates</span>
+            <span style="font-size:0.9375rem;">✅ Warranty Included</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="container">
+      <h2 class="section-title">Our Services</h2>
+      <p class="section-subtitle">Full-service remodeling — from design to final walkthrough.</p>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-img kitchen">🍳</div>
+          <div class="service-info"><h3>Kitchen Remodeling</h3><p>Custom cabinetry, countertops, backsplash, lighting, and layout redesign. Your dream kitchen, brought to life.</p></div>
+        </div>
+        <div class="service-card">
+          <div class="service-img bath">🛁</div>
+          <div class="service-info"><h3>Bathroom Renovation</h3><p>Tile work, vanities, shower installations, soaking tubs, and full bathroom transformations.</p></div>
+        </div>
+        <div class="service-card">
+          <div class="service-img roofing">🏗️</div>
+          <div class="service-info"><h3>Roofing & Siding</h3><p>Asphalt shingle, metal roofing, siding repair and replacement. Weather-tight and energy-efficient.</p></div>
+        </div>
+        <div class="service-card">
+          <div class="service-img deck">🪵</div>
+          <div class="service-info"><h3>Decks & Patios</h3><p>Custom deck design, composite decking, stone patios, pergolas, and outdoor living spaces.</p></div>
+        </div>
+        <div class="service-card">
+          <div class="service-img flooring">🏡</div>
+          <div class="service-info"><h3>Flooring</h3><p>Hardwood, laminate, luxury vinyl, tile, and carpet installation. Expert subfloor prep and finishing.</p></div>
+        </div>
+        <div class="service-card">
+          <div class="service-img paint">🎨</div>
+          <div class="service-info"><h3>Interior & Exterior Paint</h3><p>Professional painting services — smooth, durable finishes that transform any space inside or out.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonial" id="testimonials">
+    <div class="container">
+      <h2 class="section-title">What Our Clients Say</h2>
+      <p class="section-subtitle">Don't take our word for it — hear from our homeowners.</p>
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>"Kowalski remodeled our entire kitchen and it exceeded every expectation. The team was professional, punctual, and the craftsmanship is outstanding. We love our new space!"</blockquote>
+          <div class="testimonial-author">— Sarah &amp; Mike T.</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>"We needed a new roof urgently after a storm. Dave and his crew responded within hours and had it done in two days. Fair price, excellent work."</blockquote>
+          <div class="testimonial-author">— Patricia L.</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>"Our deck is the highlight of our backyard now. The design consultation was thorough and the final result is beautiful. Highly recommend Kowalski Home Remodeling."</blockquote>
+          <div class="testimonial-author">— James R.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="container">
+      <h2 class="section-title">Get Your Free Estimate</h2>
+      <p class="section-subtitle">Tell us about your project and we'll get back to you within 24 hours.</p>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-badge">🔨 Free Estimates Available</div>
+          <p><span class="label">📍 Service Area:</span> Charleston, SC &amp; surrounding areas</p>
+          <p><span class="label">📞 Phone:</span> (843) 555-0372</p>
+          <p><span class="label">✉️ Email:</span> info@kowalskiremodeling.com</p>
+          <p style="margin-top:16px;font-size:0.9375rem;color:var(--text-secondary);">Licensed · Bonded · Insured · Veteran-Owned Business</p>
+        </div>
+        <form class="contact-form">
+          <h3 style="margin-bottom:12px">Request a Quote</h3>
+          <input type="text" placeholder="Full Name" required>
+          <input type="email" placeholder="Email Address" required>
+          <input type="tel" placeholder="Phone Number">
+          <select><option>Select Service</option><option>Kitchen Remodeling</option><option>Bathroom Renovation</option><option>Roofing & Siding</option><option>Decks & Patios</option><option>Flooring</option><option>Interior/Exterior Paint</option><option>Other</option></select>
+          <textarea placeholder="Describe your project..."></textarea>
+          <button type="submit" class="btn btn-primary">Get Free Estimate</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Kowalski Home Remodeling LLC. All rights reserved.</p>
+      <p>Licensed · Bonded · Insured | <a href="#">Privacy Policy</a></p>
+      <p>Powered by <a href="#">SwiftSite</a></p>
+    </div>
+  </footer>
+</body>
+</html>

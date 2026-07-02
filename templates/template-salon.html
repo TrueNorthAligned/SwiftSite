@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luminous — Salon & Spa</title>
+  <meta name="description" content="Luminous Salon & Spa offers premium hair, nail, skincare, and massage services in a relaxing environment. Book your appointment today.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --swift-blue: #2563EB; --swift-blue-dark: #1D4ED8; --swift-blue-light: #DBEAFE; --swift-dark: #0F172A; --swift-white: #FFFFFF; --teal-accent: #0D9488; --light-gray: #F8FAFC; --border-gray: #E2E8F0; --text-secondary: #64748B; --text-muted: #94A3B8; --success-green: #22C55E; --rose: #EC4899; --rose-light: #FDF2F8; --font-family: 'Inter', system-ui, sans-serif; --font-heading: 'Playfair Display', serif; --max-width: 1100px; --radius: 12px; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-family); font-size: 16px; line-height: 1.6; color: var(--swift-dark); background: var(--swift-white); }
+    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+    h1,h2,h3 { font-weight: 700; line-height: 1.2; }
+    h1 { font-size: clamp(2rem,5vw,3.25rem); font-family: var(--font-heading); }
+    h2 { font-size: clamp(1.5rem,3vw,2.25rem); font-family: var(--font-heading); margin-bottom: 12px; }
+    h3 { font-size: 1.125rem; margin-bottom: 8px; }
+    .section-title { text-align: center; max-width: 640px; margin: 0 auto 16px; }
+    .section-subtitle { text-align: center; color: var(--text-secondary); max-width: 560px; margin: 0 auto 48px; font-size: 1.0625rem; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-family); font-weight: 600; font-size: 1rem; padding: 12px 28px; border-radius: 50px; border: none; cursor: pointer; transition: all 0.2s; white-space: nowrap; text-decoration: none; }
+    .btn-primary { background: var(--rose); color: var(--swift-white); }
+    .btn-primary:hover { background: #DB2777; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(236,72,153,0.4); }
+    .btn-outline { background: transparent; color: var(--rose); border: 2px solid var(--rose); }
+    .btn-outline:hover { background: var(--rose-light); }
+    .btn-white { background: var(--swift-white); color: var(--swift-dark); }
+    .btn-white:hover { background: var(--light-gray); }
+
+    .nav { position: fixed; top:0; left:0; right:0; z-index:100; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom:1px solid var(--border-gray); }
+    .nav-inner { display:flex; align-items:center; justify-content:space-between; height:68px; max-width:var(--max-width); margin:0 auto; padding:0 24px; }
+    .nav-logo { font-family:var(--font-heading); font-size:1.375rem; font-weight:700; color:var(--swift-dark); text-decoration:none; }
+    .nav-logo span { color: var(--rose); }
+    .nav-links { display:flex; gap:28px; list-style:none; align-items:center; }
+    .nav-links a { font-size:0.9375rem; font-weight:500; color:var(--text-secondary); text-decoration:none; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--swift-dark); }
+
+    .hero { padding:140px 0 80px; background: linear-gradient(135deg, #FDF2F8, #FCE7F3, #F8FAFC); text-align:center; position:relative; overflow:hidden; }
+    .hero::before { content:''; position:absolute; top:-40%; right:-30%; width:600px; height:600px; background:radial-gradient(circle, rgba(236,72,153,0.08), transparent 70%); pointer-events:none; }
+    .hero h1 { margin-bottom:16px; }
+    .hero h1 span { color: var(--rose); }
+    .hero p { font-size:1.125rem; color:var(--text-secondary); max-width:560px; margin:0 auto 36px; line-height:1.7; }
+    .hero-buttons { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+    section { padding: 80px 0; }
+
+    .about { background: var(--swift-white); }
+    .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; }
+    .about-image { background: var(--rose-light); border-radius:var(--radius); height:320px; display:flex; align-items:center; justify-content:center; font-size:4rem; }
+    .about-content p { color:var(--text-secondary); line-height:1.7; margin-bottom:16px; }
+
+    .services { background: var(--light-gray); }
+    .services-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+    .service-card { background:var(--swift-white); border-radius:var(--radius); padding:28px; text-align:center; border:1px solid var(--border-gray); transition:all 0.25s; }
+    .service-card:hover { box-shadow:var(--shadow); transform:translateY(-4px); border-color:transparent; }
+    .service-icon { font-size:2rem; margin-bottom:12px; }
+    .service-card p { color:var(--text-secondary); font-size:0.875rem; line-height:1.6; }
+    .service-card .price { display:inline-block; background:var(--rose-light); color:var(--rose); font-weight:700; font-size:0.875rem; padding:4px 14px; border-radius:100px; margin-top:12px; }
+    .service-card .duration { font-size:0.8125rem; color:var(--text-muted); margin-top:4px; }
+
+    .gallery { background: var(--swift-white); }
+    .gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .gallery-item { background: var(--light-gray); border-radius:var(--radius); height:200px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; transition:transform 0.25s; }
+    .gallery-item:hover { transform:scale(1.02); }
+    .gallery-item:nth-child(1) { background: linear-gradient(135deg, #FDF2F8, #FCE7F3); }
+    .gallery-item:nth-child(2) { background: linear-gradient(135deg, #F0FDF4, #DCFCE7); }
+    .gallery-item:nth-child(3) { background: linear-gradient(135deg, #DBEAFE, #BFDBFE); }
+    .gallery-item:nth-child(4) { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
+    .gallery-item:nth-child(5) { background: linear-gradient(135deg, #F5F3FF, #EDE9FE); }
+    .gallery-item:nth-child(6) { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); }
+
+    .contact { background: var(--light-gray); }
+    .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+    .contact-info p { color:var(--text-secondary); margin-bottom:8px; font-size:0.9375rem; }
+    .contact-info .label { font-weight:600; color:var(--swift-dark); }
+    .contact-hours { margin-top:16px; }
+    .contact-hours td { padding:4px 20px 4px 0; font-size:0.9375rem; color:var(--text-secondary); }
+    .contact-hours td:first-child { font-weight:600; color:var(--swift-dark); }
+    .contact-form input,.contact-form textarea,.contact-form select { width:100%; padding:12px 16px; border:1px solid var(--border-gray); border-radius:8px; font-family:var(--font-family); font-size:0.9375rem; margin-bottom:12px; }
+    .contact-form textarea { height:100px; resize:vertical; }
+    .contact-form input:focus,.contact-form textarea:focus,.contact-form select:focus { outline:none; border-color:var(--rose); }
+
+    .footer { background: var(--swift-dark); color: rgba(255,255,255,0.5); padding: 40px 0; text-align: center; font-size: 0.875rem; }
+    .footer a { color: var(--rose); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .about-grid, .contact-grid { grid-template-columns: 1fr; }
+      .services-grid, .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 480px) {
+      .services-grid, .gallery-grid { grid-template-columns: 1fr; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">Luminous <span>Salon &amp; Spa</span></a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#contact" class="btn btn-primary">Book Now</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <h1>You deserve to<br><span>feel luminous.</span></h1>
+      <p>Premium hair, nail, skincare, and massage services in a serene, welcoming space. Relax, refresh, and reveal your natural glow.</p>
+      <div class="hero-buttons">
+        <a href="#services" class="btn btn-primary">View Services</a>
+        <a href="#contact" class="btn btn-outline">Book an Appointment</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image">💆‍♀️</div>
+        <div class="about-content">
+          <h2>Our Sanctuary</h2>
+          <p>At Luminous, we believe self-care isn't a luxury — it's essential. Our team of skilled stylists, estheticians, and massage therapists are dedicated to helping you look and feel your absolute best.</p>
+          <p>From precision haircuts to rejuvenating facials, every service is customized to your unique needs. We use only premium, clean products and the latest techniques to deliver outstanding results in a calming atmosphere.</p>
+          <a href="#services" class="btn btn-outline">Explore Our Services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="container">
+      <h2 class="section-title">Our Services</h2>
+      <p class="section-subtitle">From hair to wellness — every treatment designed to pamper you.</p>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">✂️</div>
+          <h3>Hair Services</h3>
+          <p>Cut, color, highlights, balayage, keratin treatments, and styling for all hair types. Precision and creativity in every snip.</p>
+          <div class="price">from $55</div>
+          <div class="duration">45–120 min</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">💅</div>
+          <h3>Nail Care</h3>
+          <p>Manicures, pedicures, gel polish, acrylics, dip powder, and nail art. Clean, sanitary, and absolutely gorgeous.</p>
+          <div class="price">from $35</div>
+          <div class="duration">30–75 min</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🌿</div>
+          <h3>Facials & Skincare</h3>
+          <p>Customized facials, chemical peels, microdermabrasion, and LED therapy. Reveal radiant, healthy skin.</p>
+          <div class="price">from $80</div>
+          <div class="duration">50–90 min</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🪷</div>
+          <h3>Massage Therapy</h3>
+          <p>Swedish, deep tissue, hot stone, aromatherapy, and prenatal massage. Release tension and restore balance.</p>
+          <div class="price">from $90</div>
+          <div class="duration">60–120 min</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">✨</div>
+          <h3>Waxing & Threading</h3>
+          <p>Full body waxing, eyebrow threading, and lash services. Gentle, precise, and long-lasting results.</p>
+          <div class="price">from $18</div>
+          <div class="duration">15–45 min</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🎁</div>
+          <h3>Gift Packages</h3>
+          <p>Curated spa packages, bridal parties, and gift certificates. The perfect treat for someone special (or yourself!).</p>
+          <div class="price">from $150</div>
+          <div class="duration">Custom</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gallery" id="gallery">
+    <div class="container">
+      <h2 class="section-title">Our Work</h2>
+      <p class="section-subtitle">A glimpse of the artistry and relaxation that awaits you.</p>
+      <div class="gallery-grid">
+        <div class="gallery-item">💇‍♀️</div>
+        <div class="gallery-item">💅</div>
+        <div class="gallery-item">🌸</div>
+        <div class="gallery-item">✨</div>
+        <div class="gallery-item">🪷</div>
+        <div class="gallery-item">🎨</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="container">
+      <h2 class="section-title">Book Your Appointment</h2>
+      <p class="section-subtitle">We can't wait to pamper you. Schedule your visit today.</p>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <p><span class="label">📍 Address:</span> 78 Market Street, Charleston, SC 29401</p>
+          <p><span class="label">📞 Phone:</span> (843) 555-0246</p>
+          <p><span class="label">✉️ Email:</span> hello@luminoussalon.com</p>
+          <table class="contact-hours">
+            <tr><td>Tuesday – Friday</td><td>9:00 AM – 8:00 PM</td></tr>
+            <tr><td>Saturday</td><td>9:00 AM – 6:00 PM</td></tr>
+            <tr><td>Sunday – Monday</td><td>Closed</td></tr>
+          </table>
+        </div>
+        <form class="contact-form">
+          <h3 style="margin-bottom:12px">Request Appointment</h3>
+          <input type="text" placeholder="Full Name" required>
+          <input type="email" placeholder="Email Address" required>
+          <input type="tel" placeholder="Phone Number">
+          <select><option>Select Service</option><option>Hair Services</option><option>Nail Care</option><option>Facials & Skincare</option><option>Massage Therapy</option><option>Waxing & Threading</option><option>Gift Package</option></select>
+          <textarea placeholder="Preferred dates/times or special requests..."></textarea>
+          <button type="submit" class="btn btn-primary">Send Request</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Luminous Salon &amp; Spa. All rights reserved.</p>
+      <p>Powered by <a href="#">SwiftSite</a></p>
+    </div>
+  </footer>
+</body>
+</html>

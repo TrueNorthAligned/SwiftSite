@@ -1,32 +1,59 @@
-# React + TypeScript + Vite
+# SwiftSite
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**Build your business website. No code. No designers. In hours.**
 
-Currently, two official plugins are available:
+SwiftSite is a dead-simple drag-and-drop website builder for small-to-medium businesses. Pick a professional template, customize your colors and content, and publish — all without writing a single line of code.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- 🎨 **Drag & Drop Builder** — Add, move, and customize sections with zero technical skills
+- 📱 **Mobile-Optimized** — Every site looks stunning on any device, automatically
+- 🔍 **SEO-Optimized** — Built-in best practices so your site ranks from day one
+- ⚡ **Lightning Fast** — Blazing-fast load times keep visitors engaged
+- 🖼️ **Beautiful Templates** — Industry-specific templates for restaurants, law firms, salons, and more
+- 🔒 **SSL & Hosting Included** — Free SSL, reliable hosting, custom domains on paid plans
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the Oxlint configuration
+- **Frontend:** Vite + React + TypeScript
+- **Drag & Drop:** React DnD
+- **Styling:** CSS with custom properties (brand-themed)
+- **State:** React Context + useReducer
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Getting Started
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+The dev server starts at `http://localhost:5173`.
+
+## Pricing
+
+| Plan | Price | Highlights |
+|------|-------|-----------|
+| **Starter** | $19/mo | 1 website, 5 pages, mobile-optimized, SwiftSite subdomain |
+| **Business** | $49/mo | Unlimited pages, custom domain, advanced analytics, no branding |
+| **Pro** | $99/mo | Up to 5 sites, e-commerce, booking system, AI content gen |
+
+## Project Structure
+
+```
+src/
+├── types.ts                # Type definitions & default content
+├── store.tsx               # State management (Context + useReducer)
+├── components/
+│   ├── Editor.tsx          # Main 3-panel layout
+│   ├── SectionPicker.tsx   # Draggable section sidebar
+│   ├── Canvas.tsx          # Drop zone canvas
+│   ├── SectionRenderer.tsx # Section rendering by type
+│   └── PropertyEditor.tsx  # Text & color property panel
+├── App.tsx
+├── main.tsx
+└── index.css
+```
+
+## License
+
+MIT
